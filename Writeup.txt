@@ -12,7 +12,7 @@ GithubLink:https://github.com/BARANIDHARAN-S-Git/SchoolWebAPI
 
 6)Created Controller MarksController for GET,Post,PUT,DELETE Code.
 
-7)CreateD Model With the Properties.
+7)Created Model With the Properties.
 
 8)After getting URL paste it in the Postman To see whether It is working for GET,POST,PUT,DELETE.
 
