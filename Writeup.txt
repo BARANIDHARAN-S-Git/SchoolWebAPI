@@ -1,0 +1,27 @@
+GithubLink:https://github.com/BARANIDHARAN-S-Git/SchoolWebAPI
+--------------------------------------------------------------------
+1)Created WebAPI and added new class libraries.
+
+2)The class Libraries are Business LogicLibrary,Data Access Library and Helper Library.
+
+3)Business Logic Library have Properties.
+
+4)Data Access Library has certain Function for Insert,Update,Delete,Showall.
+
+5)Helper Library for One Layer Of Abstraction.
+
+6)Created Controller MarksController for GET,Post,PUT,DELETE Code.
+
+7)CreateD Model With the Properties.
+
+8)After getting URL paste it in the Postman To see whether It is working for GET,POST,PUT,DELETE.
+
+9)If the User  Want to see all the data paste the URL in the Postman and select option GET,It shows all the data stored in the Database.
+
+10)If the User want to Insert paste the URL in the Postman,write the new data to insert it to the database on Body  and select option POST to Insert data in the Database.
+
+11)If the User wants to Update the data Paste the URL in the Postman with the Id to update and write the content updated in the Body and select option PUT to Update data in the Database.
+
+12)If the User Wants to Delete the data paste the URL in the Postman with the Id to Delete and select option Delete to Delete It from the Database. 
+
+

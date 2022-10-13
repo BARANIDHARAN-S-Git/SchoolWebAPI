@@ -1,0 +1,399 @@
+GithubLink:https://github.com/BARANIDHARAN-S-Git/SchoolWebAPI
+-----------------------------------MarksBLL.cs-----------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BusinessLogicLibrary
+{
+    public class MarksBLL
+    {
+        private int _RegisterNumber;
+        public int  RegisterNumber
+        {
+            get
+            {
+                return _RegisterNumber;
+
+            }
+            set
+            {
+                _RegisterNumber = value;
+            }
+        }
+
+        private int _SubjectId;
+
+        public int SubjectId
+        {
+            get
+            {
+                return _SubjectId;
+            }
+            set
+            {
+                _SubjectId = value;
+            }
+        }
+
+        private int _Marks;
+        public int Marks
+        {
+            get
+            {
+                return _Marks;
+            }
+            set
+            {
+                _Marks = value;
+            }
+        }
+    }
+}
+
+
+-------------------------MarksDAL.cs-------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BusinessLogicLibrary;
+using System.Configuration;
+using System.Xml.Linq;
+
+
+namespace DataAccessLibrary
+{
+    public class MarksDAL
+    {
+        DataSet ds = null;
+        SqlDataAdapter da = null;
+        SqlConnection cn = null;
+
+      
+
+        public MarksDAL()
+        {
+            ds = new DataSet();
+            cn = new SqlConnection(ConfigurationManager.ConnectionStrings["SchoolCnStr"].ConnectionString);
+        }
+
+        private DataTable Connect()
+        {
+            da = new SqlDataAdapter("select * from Marks", cn);
+
+
+            da.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            da.Fill(ds, "Marks");
+            DataTable dt_data = ds.Tables["Marks"];
+            return dt_data;
+        }
+
+      
+
+
+        public bool Update(int RegisterNumber, MarksBLL Subject)
+        {
+            DataTable dt_empdata = Connect();
+            DataRow drow = ds.Tables["Marks"].Rows.Find(RegisterNumber);
+
+
+            drow["RegisterNumber"] = Subject.RegisterNumber;
+            drow["SubjectId"] = Subject.SubjectId;
+            drow["Marks"] = Subject.Marks;
+            
+
+            SqlCommandBuilder bldr = new SqlCommandBuilder(da);
+            int i = da.Update(ds.Tables["Marks"]);
+            bool status = false;
+            if (i == 1)
+            {
+                status = true;
+            }
+            return status;
+
+
+
+        }
+       
+
+
+        public List<MarksBLL> ShowAll()
+        {
+            DataTable dt_data = Connect();
+            List<MarksBLL> list = new List<MarksBLL>();
+            for (int i = 0; i < dt_data.Rows.Count; i++)
+            {
+                DataRow drow = dt_data.Rows[i];
+                MarksBLL Marks = new MarksBLL();
+                Marks.RegisterNumber = Convert.ToInt32(drow["RegisterNumber"]);
+                Marks.SubjectId = Convert.ToInt32(drow["SubjectId"]);
+                Marks.Marks = Convert.ToInt32(drow["Marks"]);
+
+
+                list.Add(Marks);
+
+            }
+            return list;
+
+
+        }
+
+
+        public bool Delete(int RegNumber)
+        {
+
+
+            DataTable dt_empdata = Connect();
+            DataRow drow = ds.Tables["Marks"].Rows.Find(RegNumber);
+            drow.Delete();
+
+            SqlCommandBuilder bldr = new SqlCommandBuilder(da);
+            int i = da.Update(ds.Tables["Marks"]);
+            bool status = false;
+            if (i == 1)
+            {
+                status = true;
+            }
+            return status;
+
+
+
+        }
+
+
+        public bool Insert(MarksBLL Marks)
+        {
+            DataTable dt_empdata = Connect();
+
+            DataRow drow = ds.Tables["Marks"].NewRow();
+            drow["RegisterNumber"] = Marks.RegisterNumber;
+            drow["SubjectId"] = Marks.SubjectId;
+            drow["Marks"] = Marks.Marks;
+
+            ds.Tables["Marks"].Rows.Add(drow);
+
+            SqlCommandBuilder bldr = new SqlCommandBuilder(da);
+            int i = da.Update(ds.Tables["Marks"]);
+            bool status = false;
+            if (i == 1)
+            {
+                status = true;
+            }
+            return status;
+
+
+
+
+        }
+
+    }
+}
+
+
+--------------------------------------MarksHL.cs------------------------------
+
+using BusinessLogicLibrary;
+using DataAccessLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HelperLibrary
+{
+    public class MarksHL
+    {
+        MarksDAL dal = null;
+        public MarksHL()
+        {
+            dal = new MarksDAL();
+        }
+
+
+       
+        public bool AddNew(MarksBLL Marks)
+        {
+            return dal.Insert(Marks);
+        }
+        
+
+        public List<MarksBLL> List()
+        {
+            return dal.ShowAll();
+        }
+
+        public bool RemoveData(int RegisterNumber)
+        {
+            return dal.Delete(RegisterNumber);
+        }
+
+
+
+        public bool EditData(int RegisterNumber, MarksBLL Marks)
+        {
+            return dal.Update(RegisterNumber, Marks);
+        }
+
+    }
+}
+
+-----------------------------MarksController.cs---------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using BusinessLogicLibrary;
+using HelperLibrary;
+using SchoolWebAPI.Models;
+
+namespace SchoolWebAPI.Controllers
+{
+    public class MarksController : ApiController
+    {
+
+
+      
+        MarksHL obj = null;
+        public MarksController()
+        {
+            obj = new MarksHL();
+        }
+
+      
+        public List<Marks> GetList()
+        {
+
+            List<MarksBLL> markbal = new List<MarksBLL>(); 
+            markbal = obj.List();
+            List<Marks> Marks = new List<Marks>();
+            foreach (var item in markbal)
+            {
+                
+                Marks.Add(new Marks { RegisterNumber = item.RegisterNumber, SubjectId= item.SubjectId, marks = item.Marks });
+            }
+            return Marks;
+
+        }
+
+       
+        public HttpResponseMessage PostMarks([FromBody] Marks Marksdata)
+        {
+            MarksBLL marksbal = new MarksBLL();
+            marksbal.RegisterNumber = Marksdata.RegisterNumber;
+            marksbal.SubjectId = Marksdata.SubjectId;
+            marksbal.Marks= Marksdata.marks;
+           
+
+            bool ans = obj.AddNew(marksbal);
+            if (ans)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotAcceptable);
+            }
+
+        }
+
+        public HttpResponseMessage PutMarks(int id, [FromBody] Marks Marksdata)
+        {
+
+            MarksBLL marksbal = new MarksBLL();
+            marksbal.RegisterNumber = Marksdata.RegisterNumber;
+            marksbal.SubjectId = Marksdata.SubjectId;
+            marksbal.Marks = Marksdata.marks;
+            
+            bool ans = obj.EditData(id, marksbal);
+            if (ans)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotAcceptable);
+            }
+        }
+
+        public HttpResponseMessage DeleteMarks(int id)
+        {
+            bool ans = obj.RemoveData(id);
+            if (ans)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotAcceptable);
+            }
+
+
+        }
+    }
+}
+
+--------------------------------Marks.cs--------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SchoolWebAPI.Models
+{
+    public class Marks
+    {
+        private int _RegisterNumber;
+        public int RegisterNumber
+        {
+            get
+            {
+                return _RegisterNumber;
+
+            }
+            set
+            {
+                _RegisterNumber = value;
+            }
+        }
+
+        private int _SubjectId;
+
+        public int SubjectId
+        {
+            get
+            {
+                return _SubjectId;
+            }
+            set
+            {
+                _SubjectId = value;
+            }
+        }
+
+        private int _Marks;
+        public int marks
+        {
+            get
+            {
+                return _Marks;
+            }
+            set
+            {
+                _Marks = value;
+            }
+        }
+    }
+}
